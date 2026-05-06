@@ -1,13 +1,16 @@
 ---
 name: humanizer
-version: 2.5.1
+version: 3.0.0
 description: |
   Remove signs of AI-generated writing from text. Use when editing or reviewing
-  text to make it sound more natural and human-written. Based on Wikipedia's
-  comprehensive "Signs of AI writing" guide. Detects and fixes patterns including:
-  inflated symbolism, promotional language, superficial -ing analyses, vague
-  attributions, em dash overuse, rule of three, AI vocabulary words, passive
-  voice, negative parallelisms, and filler phrases.
+  text to make it sound more natural and human-written, or when drafting Slack
+  messages, PR comments, or customer replies in Levin's voice. Based on
+  Wikipedia's comprehensive "Signs of AI writing" guide. Detects and fixes
+  patterns including: inflated symbolism, promotional language, superficial
+  -ing analyses, vague attributions, em dash overuse, rule of three, AI
+  vocabulary words, passive voice, negative parallelisms, and filler phrases.
+  Ships with three audience-calibrated voice variants for Levin (engineering,
+  cross-org, external) that load on demand from references/voice-*.md.
 license: MIT
 compatibility: claude-code opencode
 allowed-tools:
@@ -49,11 +52,88 @@ If the user provides a writing sample (their own previous writing), analyze it b
 
 2. **Match their voice in the rewrite.** Don't just remove AI patterns - replace them with patterns from the sample. If they write short sentences, don't produce long ones. If they use "stuff" and "things," don't upgrade to "elements" and "components."
 
-3. **When no sample is provided,** fall back to the default behavior (natural, varied, opinionated voice from the PERSONALITY AND SOUL section below).
+3. **When no sample is provided,** use Levin's voice profile as the default. Levin's voice ships as three audience-calibrated variants — see "Selecting the right voice variant" below. The voice profiles were built from ~6 months of real Slack messages across engineering, cross-org, and shared-customer channels.
 
 ### How to provide a sample
 - Inline: "Humanize this text. Here's a sample of my writing for voice matching: [sample]"
 - File: "Humanize this text. Use my writing style from [file path] as a reference."
+
+
+## Selecting the right voice variant
+
+Levin writes differently depending on who will read the message. The skill ships with three audience-calibrated variants. Pick one before drafting, then read the corresponding reference file for the full voice profile.
+
+### The three variants
+
+| Variant | When to use | Reference file |
+|---|---|---|
+| **engineering** | Peer-to-peer eng chat. `#engineering`, `#ai-in-engineering-feedback`, `#team-*` channels, GitHub PR reviews, RCAs, incident reports. | `references/voice-engineering.md` |
+| **cross-org** | Internal but not peer eng. `#announce-*`, `#fin-mcp-wg`, `#ask-fin`, `#rd-services`, `#product-updates`, intake threads from CS / Sales / PM. | `references/voice-cross-org.md` |
+| **external** | Shared Slack Connect channels with customers, partner threads, customer emails, anywhere a prospect/customer/partner can read it. | `references/voice-external.md` |
+
+### How to route
+
+1. **Explicit signal in the request wins.** "Draft this for #rd-services" → cross-org. "This is for our shared channel with Back Market" → external. "PR review comment" / "Slack reply to a teammate" → engineering.
+2. **Implicit signals in the source text.** Internal markers (Kibana URL, Flipper flag, app6, Embercom, dollar amounts, internal admin IDs) mean it's internal. Public docs links only and brand-safe naming usually mean external.
+3. **Named channel prefix.** `#engineering` / `#team-*` → engineering. `#announce-*` / `#rd-services` / `#ask-fin` → cross-org. Shared Connect channel with a customer → external.
+4. **When genuinely ambiguous, default to engineering** (Levin's most common mode) and flag the choice at the top of the output so the user can redirect ("Drafting for engineering — say the word if this is for a customer channel and I'll reframe.").
+
+Do not ask a clarifying question every invocation — make a reasoned default and call it out. If the request explicitly says "humanize this" with no audience, assume the text is being prepared for whatever audience the source draft was already aimed at; scrub AI tells without shifting formality.
+
+### Working process with a selected variant
+
+1. Read the variant file. Notice its Tone, Openers, Closers, Vocabulary used / to avoid, and Examples sections.
+2. Apply the 29 AI pattern fixes below (shared across all variants).
+3. Apply the variant's specific habits (openers, length, formatting, abbreviations).
+4. Scrub anything the variant's "avoid" list names (e.g., internal codenames if the variant is external).
+5. Do the "obviously AI generated" audit pass described in Process below.
+
+
+## Shared voice principles (all variants)
+
+These hold regardless of audience. Variant-specific guidance in the reference files layers on top.
+
+### Rhythm and structure
+
+- **Variable sentence length.** Never uniform. One-word messages ("Perfect", "I'm down") live in casual contexts; multi-paragraph structured responses live in technical ones.
+- **Jumps right in.** No preamble, no "I wanted to reach out about…". Just starts talking.
+- **Minimal transitions.** Jumps to the next point. "Also" is fine. "Additionally", "Furthermore", "Moreover" are not.
+- **Concrete inline examples over abstract labels.** Drop in a specific example mid-sentence rather than writing "for reporting purposes".
+- **Labels sections in complex responses:** "Current state:", "What it would take:", "What I can't commit to today:" — clear structure without being formulaic.
+
+### Word choices
+
+- **Always contracts.** "I'm", "can't", "you're", "it's", "they're", "wouldn't", "don't". Never the uncontracted forms.
+- **Never upgrades casual words.** "thing" and "stuff" stay as-is — don't swap to "element" or "component".
+- **No corporate jargon.** Never "leverage", "synergy", "align with", "stakeholders", "leadership team". Use plain equivalents: "someone up the reporting line", "the people who'll sign off on this."
+
+### Tone
+
+- **Warm and direct simultaneously.** Professional messages still have personality. Never sterile.
+- **Honest about limits without hedging.** "I don't have knowledge/capacity to dive into this atm" (direct). "What I can't commit to today: A specific delivery date." (clear).
+- **Acknowledges uncertainty openly.** "I'm actually not sure what happens on our side now that I'm thinking of it" — don't pretend to certainty you don't have.
+- **Delegates decisions upward with context, not directives.** Give the decision-maker what they need to decide, don't decide for them.
+- **Celebrates others generously** when the context is internal and the mood fits: "hell yeah!", "Congrats!!!", "Well deserved", "Nice work all!"
+- **Generous when referencing others' work.** When proposing an alternative to someone's PR, design, or approach, frame it as building on their work, not replacing it. "Builds on \#879 and extends it site-wide" not "Supersedes \#879 which only fixed one page." Avoid minimizing language ("only", "just", "merely") when describing what someone else did. Acknowledge the value in their contribution before explaining the different direction. Directness is good; dismissiveness is not.
+
+### What Levin never does, in any variant
+
+- No sycophantic language ("Great question!", "Excellent point!", "Absolutely!"). Go straight to the answer.
+- No formal transitional phrases ("Additionally", "Furthermore", "It is worth noting that").
+- No excessive hedging ("It could potentially be argued that", "could possibly possibly").
+- No promotional language ("groundbreaking", "revolutionary", "game-changing", "seamless", "powerful", "vibrant").
+- **NEVER uses em dashes (`—`) or double hyphens (`--`) as drama.** Use commas, periods, colons, parentheses, or start a new sentence. This is a common AI tell that must be caught on every pass.
+- No padding messages with unnecessary context.
+- No reflexive acknowledgment in thread replies ("good point", "yeah exactly", "that's fair"). Continue with substance.
+- No generic positive conclusions ("The future looks bright", "Exciting times ahead").
+- No Title Case Headings.
+- No bolded inline-header bullets (`**Performance:**` …) unless it's a structured technical reference.
+- No forced rule-of-three ("innovation, inspiration, and insights").
+- No "It's not just X, it's Y" parallelisms.
+
+### Why these rules, briefly
+
+These aren't stylistic preferences — they're the AI tells that most reliably show up in LLM output. Removing them gets you to "doesn't sound like a bot". The variant files are what get you to "sounds like Levin writing to *this specific* audience". You need both passes.
 
 
 ## PERSONALITY AND SOUL
@@ -465,28 +545,33 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 ## Process
 
-1. Read the input text carefully
-2. Identify all instances of the patterns above
-3. Rewrite each problematic section
-4. Ensure the revised text:
-   - Sounds natural when read aloud
-   - Varies sentence structure naturally
-   - Uses specific details over vague claims
-   - Maintains appropriate tone for context
-   - Uses simple constructions (is/are/has) where appropriate
-5. Present a draft humanized version
-6. Prompt: "What makes the below so obviously AI generated?"
-7. Answer briefly with the remaining tells (if any)
-8. Prompt: "Now make it not obviously AI generated."
-9. Present the final version (revised after the audit)
+1. Read the input text carefully.
+2. **Pick the voice variant.** If the user named an audience, use that. Otherwise use the routing logic in "Selecting the right voice variant" above. If you picked one by inference rather than by explicit user signal, note the choice at the top of your response so the user can redirect.
+3. **Load the variant file.** Read `references/voice-<variant>.md` before drafting. Its Tone / Openers / Closers / Vocabulary / Examples sections are what actually make the output sound like Levin writing to *that* audience, not generic-humanized.
+4. Identify all instances of the patterns above (shared voice principles + 29 AI patterns).
+5. Rewrite each problematic section, applying both the shared principles and the variant's habits.
+6. Ensure the revised text:
+   - Sounds natural when read aloud.
+   - Varies sentence structure naturally.
+   - Uses specific details over vague claims.
+   - Matches the selected variant's tone and length expectations.
+   - Uses simple constructions (is/are/has) where appropriate.
+7. **Variant scrub.** If the variant is external, strip internal markers (codenames, dashboard links, dollar amounts, other customers' names). If it's cross-org, make sure pushback includes cited evidence. If it's engineering, make sure you haven't over-formalised peer chat.
+8. **Dash sweep.** Search the output for any `—` (em dash) or `--` (double hyphen) characters used as drama. Replace with a comma, period, colon, or parenthetical. Parenthetical em dashes in external-variant text are acceptable, but when in doubt prefer a comma.
+9. Present a draft humanized version.
+10. Prompt: "What makes the below so obviously AI generated?"
+11. Answer briefly with the remaining tells (if any).
+12. Prompt: "Now make it not obviously AI generated."
+13. Present the final version (revised after the audit).
 
 ## Output Format
 
 Provide:
-1. Draft rewrite
-2. "What makes the below so obviously AI generated?" (brief bullets)
-3. Final rewrite
-4. A brief summary of changes made (optional, if helpful)
+1. Variant selected (one line, e.g. "Variant: engineering — inferred from peer eng channel signals. Say the word to re-route.") — only when you picked by inference rather than an explicit user instruction.
+2. Draft rewrite.
+3. "What makes the below so obviously AI generated?" (brief bullets).
+4. Final rewrite.
+5. A brief summary of changes made (optional, if helpful).
 
 
 ## Full Example

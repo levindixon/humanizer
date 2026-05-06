@@ -78,6 +78,16 @@ Now humanize this text:
 
 The skill will analyze your sentence rhythm, word choices, and quirks, then apply them to the rewrite instead of producing generic "clean" output.
 
+### Levin's voice variants (default)
+
+When no sample is provided, the skill defaults to Levin's voice, which ships in three audience-calibrated variants under `references/`:
+
+- `voice-engineering.md` — peer-to-peer eng chat, PR reviews, RCAs.
+- `voice-cross-org.md` — `#announce-*`, `#rd-services`, `#ask-fin`, CS/Sales intake.
+- `voice-external.md` — shared Slack Connect channels with customers, partner threads.
+
+Name the audience in your prompt (e.g. "humanize this for a customer channel") and the skill will load the corresponding variant before drafting. If you don't name one, the skill infers from signals in the source text and flags its choice so you can redirect.
+
 ## Overview
 
 Based on [Wikipedia's "Signs of AI writing"](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) guide, maintained by WikiProject AI Cleanup. This comprehensive guide comes from observations of thousands of instances of AI-generated text.
@@ -179,6 +189,7 @@ The skill also includes a final "obviously AI generated" audit pass and a second
 
 ## Version History
 
+- **3.0.0** - Replaced the flat Levin voice profile with three audience-calibrated variants (engineering, cross-org, external) under `references/voice-*.md`. Added an audience routing layer in SKILL.md so the skill picks the right variant before drafting. Shared principles (em dash rule, no corporate jargon, etc.) stay in SKILL.md as they hold across every variant. Derived from ~6 months of Slack messages across eng, cross-org, and shared-customer channels.
 - **2.5.1** - Added a passive-voice / subjectless-fragment rule, raising the total to 29 patterns
 - **2.5.0** - Added patterns for persuasive framing, signposting, and fragmented headers; expanded negative parallelisms to cover tailing negations; tightened wording around em dash overuse; fixed frontmatter wording to use "filler phrases"
 - **2.4.0** - Added voice calibration: match the user's personal writing style from samples
