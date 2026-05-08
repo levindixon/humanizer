@@ -1,0 +1,82 @@
+{
+  "skill_name": "humanizer",
+  "version_under_test": "4.0.0",
+  "baseline_version": "3.0.0",
+  "evals": [
+    {
+      "id": 1,
+      "name": "peer-eng-slack-strip-hey-name-and-happy-to",
+      "prompt": "Run this through /humanizer for a Slack reply. Target channel is a team-eng thread where the user mark.dennis (slack ID U09FCFJSK9B) is the addressee. Input draft:\n\n> Hey Mark, nice fix on this. Apollo.io's 4 invisible connectors was a real pain and the two-PR split (carve-out + backfill rake) was the right ship. One thing worth a follow-up, no rush: the gate at `mcp_action_attribute_builder.rb:14` tests `is_mcp_action?` which essentially asks 'is this MCP?' instead of asking 'does this need a `default_value`?'. The two answers happen to coincide for now but they could diverge if anything else triggers the resolution path. Happy to pair on a follow-up PR if it'd be useful, otherwise just wanted to flag the shape!",
+      "gold_published_text": "<@U09FCFJSK9B|mark.dennis> This gate is essentially asking \"is this MCP?\" instead of \"does this need a default_value?\". The two answers happen to coincide for now but they could diverge if anything else triggers the resolution path.",
+      "tests": [
+        {"id": "strip_hey_name", "criterion": "Output does not begin with 'Hey Mark' or any 'Hey {name}' opener; leads with @mention or verb."},
+        {"id": "use_slack_mention", "criterion": "Output uses Slack mention syntax `<@U09FCFJSK9B|mark.dennis>` not bare 'Mark'."},
+        {"id": "strip_happy_to", "criterion": "Output does not contain 'Happy to pair' or any 'Happy to ...' closer."},
+        {"id": "strip_warmth_opener", "criterion": "Output does not contain 'Apollo.io's 4 invisible connectors was a real pain' or similar opening warmth."},
+        {"id": "strip_inline_backticks", "criterion": "`is_mcp_action?` and `default_value` are NOT wrapped in backticks (Slack target, plain identifiers)."},
+        {"id": "no_em_dash", "criterion": "No em dashes — Slack target."},
+        {"id": "final_draft_delimited", "criterion": "Final publishable draft is in a delimited block (FINAL DRAFT or fenced code) at the end of the response with no commentary after."}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "slack-linkify-and-semicolon-to-question",
+      "prompt": "Create a draft reply on the Slack thread, run it through /humanizer. Cross-org channel. Input draft:\n\n> If they're asking whether Intercom supports MCP (I think that's what they actually mean; \"extending\" is a bit ambiguous), the answer is yes — Fin is an MCP client (MCP Connectors, GA), and we expose an Intercom MCP server. Also — they want to know how Intercom uses MCP internally, the customer though:\n> 1. Our internal Fin instance uses MCP Connectors to integrate with Slack, GitHub, etc.\n> 2. Our customer-facing Fin uses the same primitive.\n>\n> Links they can read:\n> https://www.intercom.com/learn/mcp-client\n> https://developers.intercom.com/docs/intercom-mcp-server",
+      "gold_published_text": "If they're asking whether Intercom supports MCP (I think that's what they actually mean? \"extending\" is a bit ambiguous), the answer is yes — Fin is an MCP client (via MCP Connectors), and we expose an Intercom MCP server. They also want to know how Intercom uses MCP internally, the customer though:\n\n1. Our internal Fin instance uses MCP Connectors to integrate with Slack, GitHub, etc.\n2. Our customer-facing Fin uses the same primitive.\n\nLinks they can read:\n• Intercom as an MCP client: <https://www.intercom.com/learn/mcp-client>\n• Intercom as an MCP server: <https://developers.intercom.com/docs/intercom-mcp-server>",
+      "tests": [
+        {"id": "semicolon_to_question_mark", "criterion": "Interpretive parenthetical uses '?' not ';' — should produce 'they actually mean?' not 'they actually mean;'."},
+        {"id": "drop_GA", "criterion": "Output drops 'GA' acronym; cross-org Slack should say '(via MCP Connectors)' not '(MCP Connectors, GA)'."},
+        {"id": "linkify_with_labels", "criterion": "Two URLs become labelled bullets: '• Intercom as an MCP client: <url>' and '• Intercom as an MCP server: <url>'. NOT bare URLs, NOT markdown links."},
+        {"id": "blank_line_before_numbered_list", "criterion": "There is a blank line before the '1.' numbered list (Slack mrkdwn renders better with the blank line)."},
+        {"id": "slack_url_format", "criterion": "URLs use Slack format `<url>` not bare `https://...` (or markdown `[label](url)`)."}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "qq-prefix-mention-syntax",
+      "prompt": "Draft a Slack message to Steve Henry (slack ID U022SFCQZRN, my engineering manager) in a private team channel. Single quick question. Input draft:\n\n> Hey Steve, quick one before next week's Q2 check-ins. Has Darragh's emp ID been confirmed yet? Would help me come into our 1:1 with the same numbers you'll have.",
+      "gold_published_text": "<@U022SFCQZRN|Steve Henry> QQ before next week's Q2 check-ins about Darragh's emp ID — has it been confirmed yet?",
+      "tests": [
+        {"id": "qq_prefix", "criterion": "Output uses 'QQ' (or similar single-question idiom) instead of 'Hey Steve, quick one'."},
+        {"id": "slack_mention", "criterion": "Output uses `<@U022SFCQZRN|Steve Henry>` mention syntax."},
+        {"id": "strip_pre_emptive_helpfulness", "criterion": "Output does not contain 'Would help me come into our 1:1' — pre-emptive helpfulness Levin always cuts."}
+      ]
+    },
+    {
+      "id": 4,
+      "name": "disclaimer-pushback-on-rigorous-work",
+      "prompt": "Draft a reply to the github issue and link to the PR and include the complete investigation report (minus the draft replies) in a details/summary block. Keep it succinct and easy to read and understand. Use /humanizer and be humble and forthcoming about this not being an area of expertise and that the bulk of understanding and implementation has been left to Claude Code. The investigation is at /tmp/investigation.md and is a rigorous, evidence-backed analysis with verified production data, three options with tradeoffs, blast radius assessment, and verification status.",
+      "gold_published_text": "[The skill should PUSH BACK before drafting, asking whether to (a) ship without Claude-attribution as 'Posting an investigation, please poke holes', (b) keep humility framing verbatim, or (c) attribute methodology only. The skill should NOT just produce the disclaimer-laden draft as if humility was the right call for rigorous load-bearing work.]",
+      "tests": [
+        {"id": "skill_pushes_back", "criterion": "Skill response includes a question to the user offering 3+ alternatives to verbatim-humility framing, citing the ROT-0592 self-review reasoning."},
+        {"id": "does_not_immediately_draft", "criterion": "Skill does NOT immediately produce a draft with 'Claude did most of this' framing without the pushback question."},
+        {"id": "respects_user_override", "criterion": "If user explicitly says 'keep my humility framing verbatim, option (b)', skill produces the draft with the disclaimer."}
+      ]
+    },
+    {
+      "id": 5,
+      "name": "no-edits-needed-pr-review",
+      "prompt": "Run this through /humanizer for a GitHub PR review approval. Input is already in my voice:\n\n> Thorough review, this is a high-quality PR that solves a real production problem (20K+ redundant refresh attempts/week) using an established pattern already proven by HubSpot, Zendesk, and Salesforce integrations.\n>\n> **Approving with two non-blocking suggestions below.**\n>\n> What looks good:\n> - Feature flag gating follows established patterns\n> - `token_value` comparison is more robust than `updated_at` (avoids false skips on metadata edits)\n> - Comprehensive observability (metrics, root span tags, logging) for every new code path\n> - Staged rollout plan with targeted Honeycomb queries",
+      "gold_published_text": "[Same as input — should publish near-verbatim. The skill should produce a near-identical FINAL DRAFT with no spurious edits.]",
+      "tests": [
+        {"id": "near_verbatim", "criterion": "Output is >=95% similar to input (e.g. SequenceMatcher ratio >= 0.95)."},
+        {"id": "preserves_em_dash", "criterion": "If the input has em dashes for dense technical clauses, they remain (engineering PR body — em dashes are fine here)."},
+        {"id": "preserves_pr_review_template", "criterion": "Two-paragraph PR-review template (technical lede + bolded 'Approving with N non-blocking suggestions' line) is preserved."},
+        {"id": "no_artificial_edits", "criterion": "Skill does NOT introduce changes for the sake of changes — clean input should produce clean output."}
+      ]
+    },
+    {
+      "id": 6,
+      "name": "ai-scraped-data-substance-check",
+      "prompt": "Run this through /humanizer. It's the prioritized MCP item list my manager asked for. Audience is Steve Henry, my EM. \n\n> # MCP Priority List\n>\n> ## Overview\n>\n> The MCP ecosystem at Intercom comprises several key integration points and connectivity patterns that warrant strategic prioritization. This document captures the breadth of MCP-related opportunities and synthesizes them into actionable categories.\n>\n> ## Categories\n>\n> ### MCP Server Improvements\n> - Tool schema improvements\n> - OAuth flow enhancements\n> - Documentation updates\n> - Performance optimization\n>\n> ### MCP Client Capabilities\n> - Array argument handling\n> - Object coercion improvements\n> - Auth mechanism support expansions\n>\n> ### Strategic Initiatives\n> - Glean integration deepening\n> - Microsoft Copilot integration\n> - Partner ecosystem expansion\n> - Competitive positioning\n>\n> ### Infrastructure\n> - Tenant isolation improvements\n> - Rate limiting refinements\n> - Observability enhancements\n>\n> ## Conclusion\n>\n> These priority areas represent significant opportunities for advancing Intercom's MCP capabilities. By focusing on these categories, we can drive meaningful business impact while strengthening our technical foundations.",
+      "gold_published_text": "[The skill should SURFACE the substance gap to the user before drafting. This input is the exact 'AI-scraped data dump' shape Steve flagged in the 2026-04-28 feedback. The skill should ask whether to (a) compress to a single load-bearing claim + supporting evidence, (b) ask the user for their POV first and then build the message around it, or (c) clean only the style and ship as-is. Default suggestion: (a) or (b), explicitly citing Steve's feedback.]",
+      "tests": [
+        {"id": "skill_surfaces_substance_gap", "criterion": "Skill response identifies that the input is data-dump-shape and asks the user before drafting."},
+        {"id": "skill_offers_options", "criterion": "Skill offers 2+ alternative shapes (compress to TL;DR, ask for POV, clean style only)."},
+        {"id": "skill_cites_steve_feedback", "criterion": "Skill explicitly references the Steve Henry feedback or 'PE3 expected to apply engineering opinion' as rationale."}
+      ]
+    }
+  ],
+  "scoring_method": "Each test is binary pass/fail. Run the skill on the prompt, compare its output against the gold_published_text and the tests. Aggregate pass rate per eval and overall.",
+  "validation_notes": "These evals derive from real (skill output, Levin published) pairs in the diff library at /Users/levindixon/src/dot-claude/humanizer-workspace/diffs/. Each eval has the original prompt Levin gave the skill and the actual text Levin shipped. Tests are derived from the patterns identified in /Users/levindixon/src/dot-claude/humanizer-workspace/analysis/batch-*.md."
+}

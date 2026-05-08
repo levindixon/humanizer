@@ -155,3 +155,36 @@ the requirements and timelines that would be really helpful.").
 Length: short ack = 1 sentence. Substantive answer = 1 lede + 2–4 numbered points with evidence.
 If it's longer than ~12 lines of prose, write it as a doc and link it.
 ```
+
+## Diff-evidence rules (empirical, learned from real edits)
+
+### Internal-jargon scrub for cross-org
+- **Strip release-stage acronyms** (GA, EA, EAP, beta-as-noun) unless the maturity is the point. Replace with prepositions:
+  ```
+  Skill: Fin is an MCP client (MCP Connectors, GA)
+  Levin: Fin is an MCP client (via MCP Connectors)
+  ```
+- **Verify named entities** before shipping. Levin has shipped fabricated permission names before. Mark `[VERIFY: <name>]` for any specific permission, product, dashboard, or setting the skill names.
+
+### Slack mrkdwn for cross-org channels
+Same rules as engineering variant — render Slack mrkdwn natively from the start:
+- `_italic_` not `*italic*` (which is bold in Slack and renders wrong).
+- `:emoji_name:` shortcodes, not unicode emoji wrapped in asterisks.
+- `<url|label>` for any URL the user provided.
+- `•` for bullets, not `-`.
+- Numbered lists need a blank line after the lead-in.
+- Bare URLs are fine for a single self-describing link; for ≥2 links use `•` bullets with one-phrase labels (`• Intercom as an MCP client: <url>`).
+
+### Soft-offer trim
+- **Drop mid-message "Happy to X" / "I'd be glad to Y"** soft offers. The terminal "Let me know if there's anything else I can do to help!" is the variant's allowed closer; mid-message versions get cut.
+- Strip discourse-marker openers in the middle of a message ("That said, I think,", "More importantly,", "Worth noting,").
+
+### `;` → `?` for guesses
+When a parenthetical conveys interpretation/guess rather than assertion, prefer a trailing `?`:
+```
+Skill: (I think that's what they actually mean; "extending" is a bit ambiguous)
+Levin: (I think that's what they actually mean? "extending" is a bit ambiguous)
+```
+
+### When the input is a long AI-scraped document
+The cross-org variant is the most common landing for "summarize this for {audience}" requests. If the input fits the AI-scraped data dump shape (multi-paragraph facts without a load-bearing claim), apply the substance check from SKILL.md before drafting. Steve Henry's feedback (`/Users/levindixon/src/work/feedback/received/2026-04-28-steve-henry.json`) is explicit: "A concise document capturing the key data, evidence, and summarising the potential paths forward is more valuable than multiple pages of AI scraped data." Bias toward TL;DR + evidence shape.

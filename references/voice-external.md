@@ -161,3 +161,40 @@ quick call if it'd be useful." / a clear next step or owner.
 Length: slightly longer complete sentences than internal. No one-word replies. Numbered
 steps for setup. If >~10 lines of prose, consider writing a doc and linking it.
 ```
+
+## Diff-evidence rules (empirical, learned from real edits)
+
+### "Happy to" qualifier — keep ONE, drop the rest
+The external variant is the only one that allows a "Happy to jump on a quick call" closer in its existing examples. Empirically, that *one* terminal closer is allowed, but mid-message "Happy to take a feature request to expose this via API if it'd unblock something" / "Happy to dig in further" / "Happy to share more" — these get cut. Don't stack soft offers.
+
+### Factual entity verification (HIGH STAKES)
+The diff corpus shows a published-ready customer reply that was almost shipped with a fabricated permission name (`*Manage apps and integrations*` — wrong; correct was `_Can install, configure and delete apps_`). Never ship a customer-facing draft that names a specific permission, product surface, dashboard, or setting without verification.
+
+Append `[VERIFY: <name>]` after each named entity for the user to check, or use a placeholder like `<the {permission_name} permission>` and ask the user to fill it.
+
+### Slack-Connect / shared-channel formatting
+External Slack channels render Slack mrkdwn just like internal:
+- `_italic_` not `*italic*`.
+- `<url|label>` for non-self-describing URLs; bare URL fine for a single self-describing public-docs link.
+- `•` not `-` for bullets.
+- Numbered lists need a blank line after the lead-in.
+- No internal `<@USERID|name>` mentions (use first names instead).
+
+### Em-dashes
+Strip in external. The "audience-calibrated" exception for engineering PR bodies does NOT apply here — external readers are calibrated by marketing copy and treat em-dashes as a "this is a sales pitch" signal.
+
+### Mandatory attribution byline
+Replies posted via automated tooling get `[~ Automated via Claude](https://github.com/intercom/claude-plugins/blob/main/plugins/base/docs/external-message-attribution.md)` at the end. Don't strip it. *Don't* re-add it if the message was already attributed elsewhere in the thread.
+
+### "Reading instructions" pattern
+Customer replies that direct the reader to documentation use a Levin idiom:
+```
+Skill: Here are some links you can read:
+       https://example.com/docs/a
+       https://example.com/docs/b
+
+Levin: Links they can read:
+       • Intercom as an MCP client: <https://example.com/docs/a>
+       • Intercom as an MCP server: <https://example.com/docs/b>
+```
+Each link gets a one-phrase label that says what they'll find. Bullets are `•`, not `-`.

@@ -179,6 +179,48 @@ rigorous.
 - Up to a short numbered list for a hypothesis or proposal.
 - If it would take more than ~8 lines, suggest a doc or PR instead.
 
+## Diff-evidence rules (empirical, learned from real edits)
+
+These rules come from the (skill output, Levin published) diff corpus.
+They override heuristic guidance when they conflict.
+
+### For peer-eng Slack threads
+- **Drop the "Hey {name}" greeting entirely.** Lead with `<@USERID|name>` if a user ID is in scope, otherwise just start with the verb. Reserve "Hey {name}," for cross-org.
+- **Drop sycophantic opener warmth.** "Hey Mark, nice fix on this. Apollo.io's 4 invisible connectors was a real pain..." — cut. Lead with `<@U…|mark.dennis> This gate is essentially asking...`.
+- **Strip "Happy to pair on a follow-up PR if it'd be useful, otherwise just wanted to flag the shape!"** template. 100% removal rate in the corpus. If a follow-up offer is needed, end on a plain trailing question (`"Re-review when you get a sec?"`).
+- **`★ Insight ─────` boxes never go to publication.** Always cut.
+- **Strip backticks around inline code** when the surrounding sentence is unambiguous without them (`default_value`, `body.arguments`). Keep backticks on `{{key}}` / regex / expressions with operators.
+- **`-` bullets become `•` bullets** in published Slack messages. Render natively.
+- **`*italic*` (Markdown) becomes `_italic_` (Slack mrkdwn).** `**bold**` becomes `*bold*` in Slack.
+- **GitHub short-refs (`intercom/intercom#144`) become bare URLs** (`<https://github.com/intercom/intercom/pull/144>`) — short-refs don't auto-link in Slack.
+- **Numbered lists need a blank line after the lead-in** in Slack mrkdwn:
+  ```
+  A few things:
+
+  1. ...
+  2. ...
+  ```
+- **`QQ:` prefix** is the Levin idiom for single-question Slack messages into a busy channel, replacing "Hey {name}, quick one".
+
+### For PR / RCA / investigation writeups
+- **Em dashes are FINE here** if they separate dense technical clauses. Don't apply the chat-strip rule to PR bodies or detailed GitHub comments.
+- **`<details>` block is single-line** with the report title as the summary text:
+  ```
+  <details><summary>Investigation: UserAuthToken blocks `legacy_secret_key_base` rotation in EU/AU</summary>
+  ```
+  not
+  ```
+  <details>
+  <summary>Full investigation report</summary>
+  ```
+- **PR review template** (technical lede + bolded "Approving with N non-blocking suggestions" line) — already in the existing examples; verified verbatim in published corpus.
+- **Don't strip the mandatory `<sub>Generated with Claude Code</sub>`** footer on PR bodies. It's a tooling contract, not a stylistic choice.
+
+### For incident channels and high-stakes async eng
+- **Inline the load-bearing analysis; don't link to it.** This is the ROT-0592 self-review lesson. When the audience is a fast-moving thread of decision-makers, the Impact / Blast Radius / Verification sections need to be in the message body, not behind a link. *Note this is the opposite of the casual-chat "trust the link" rule — context matters.*
+- **Drop self-deprecating "Claude did most of this" framing on rigorous work.** When the user prompt asks for "humility" on a load-bearing analysis, push back before drafting (see SKILL.md "Disclaimer pushback").
+- **Bare URLs preserve as bare URLs in PR descriptions and GitHub comments** — Levin doesn't convert to `[label](url)` markdown links unless the URL is opaque. Slack is the same except for ≥2 links (label them then).
+
 ## Drop-in system prompt (for downstream tools)
 
 ```
