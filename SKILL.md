@@ -2,17 +2,35 @@
 name: humanizer
 version: 4.0.0
 description: |
-  Remove signs of AI-generated writing from text. Use when editing or reviewing
-  text to make it sound more natural and human-written, or when drafting Slack
-  messages, PR comments, or customer replies in Levin's voice. Based on
-  Wikipedia's comprehensive "Signs of AI writing" guide plus an empirical
-  reference (`references/diff-evidence.md`) built from 26 real (skill output,
-  Levin published) pairs across slack/github/intercom. Detects and fixes
-  patterns including: inflated symbolism, promotional language, superficial
-  -ing analyses, vague attributions, em dash overuse, rule of three, AI
-  vocabulary words, passive voice, negative parallelisms, and filler phrases.
-  Ships with three audience-calibrated voice variants for Levin (engineering,
-  cross-org, external) that load on demand from references/voice-*.md.
+  Stage 2 of outbound-text production — scrubs AI stylistic tells from
+  anything Claude is about to hand the user to read, paste, post, send, or
+  share with anyone other than themselves, then renders in Levin's voice.
+  Runs AFTER /high-signal-comms in the standard pipeline (or alone for
+  short / already-structured drafts). USE PROACTIVELY, without being asked,
+  whenever Claude is composing or has just composed any of: Slack message,
+  Slack thread reply, DM, channel post, PR description, PR review comment,
+  inline code-review comment, GitHub issue body or comment, PR close
+  comment, customer email, Intercom back-office reply, Google Doc, RCA,
+  design doc, weekly update, status update, announcement, team message.
+  Trigger phrasings include: "draft a reply", "draft a message", "draft an
+  email", "compose", "respond to", "reply to (this/that/the)", "reply on
+  this", "reply in this thread", "post a comment", "leave a comment",
+  "send a message", "send this", "message {name}", "DM {name}", "ping
+  {name}", "share with the team", "write up", "write a {summary|update|
+  note}", "back-office reply", "customer reply", "tell them", "let them
+  know", "PR description", "PR comment", "PR close comment", "issue
+  comment", "announcement", "weekly update", "status update", "summarize
+  for {audience}". Levin has historically had to attach "use /humanizer"
+  to outbound-text requests — that's the failure mode this expanded
+  trigger surface eliminates. Based on Wikipedia's "Signs of AI writing"
+  guide plus `references/diff-evidence.md` (26 real skill-output → Levin-
+  published diff pairs). Detects and fixes patterns including: inflated
+  symbolism, promotional language, superficial -ing analyses, vague
+  attributions, em dash overuse, rule of three, AI vocabulary words,
+  passive voice, negative parallelisms, filler phrases, and 19 more.
+  Ships with three audience-calibrated voice variants for Levin
+  (engineering, cross-org, external) that load on demand from
+  references/voice-*.md.
 license: MIT
 compatibility: claude-code opencode
 allowed-tools:
